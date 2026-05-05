@@ -38,56 +38,98 @@ Prerequisites: **Bun ≥ 1.3** and **Docker** running locally.
 # 1. Install dependencies
 bun install
 
-# 2. Start Postgres in Docker (binds host port 5433 → container 5432)
-bun run db:up
-
-# 3. Apply the schema
-#    drizzle-kit push silently hangs on this Bun/macOS combo, so we
-#    generate SQL and apply it with psql via docker exec:
-bunx drizzle-kit generate
-docker exec -i postgresql-db-1 psql -U user -d database \
-  < db/migrations/0000_*.sql
-
-# 4. Boot the dev server
+# 2. Boot the workspace — Postgres + the AbsoluteJS dev server start
+#    together, the app waits for the DB's TCP probe, and both go down
+#    on Ctrl+C.
 bun run dev
 ```
 
-Open **http://localhost:3000** — a demo board is auto-seeded the first time
-the server starts. The landing-page CTA links straight to it.
+Open **http://localhost:3000** — a demo board is auto-seeded on first
+start. The landing-page CTA links straight to it.
 
-`.env` is read by both the server and Drizzle:
+The first time you bring up the workspace on a fresh DB, you'll need to
+apply the schema once. `drizzle-kit push` silently hangs on Bun/macOS
+(see [Caveats](#caveats)), so the working flow is `generate` + `psql`:
+
+```sh
+bun run db:generate
+docker exec -i postgresql-db-1 psql -U user -d database \
+  < db/migrations/0000_*.sql
+```
+
+After that, the schema persists in the named docker volume (`db_data`)
+across restarts — you only redo this if you wipe the volume or change
+the schema.
+
+### Connection details
+
+The Postgres container is provisioned with these credentials, hard-coded
+in [`db/connection.ts`](./db/connection.ts) and matched to
+[`db/docker-compose.db.yml`](./db/docker-compose.db.yml):
 
 ```
-DATABASE_URL=postgresql://user:password@127.0.0.1:5433/database
+postgresql://user:password@127.0.0.1:5433/database
 ```
 
-> **macOS heads-up.** The Docker mapping is **5433**, not 5432. This avoids
+There's no `.env` — these are local-only secrets and live next to the
+compose file as constants. If you need to point at a different database
+(e.g., a hosted one for prod), this is the one place to change.
+
+> **macOS heads-up.** The Docker port is **5433**, not 5432. This avoids
 > conflicting with a system Postgres bound to `localhost:5432` (e.g.
 > Postgres.app, `brew services start postgresql`), which silently shadows
-> the container otherwise — see [Caveats](#caveats).
+> the container — see [Caveats](#caveats).
+
+## Workspace orchestration
+
+`absolute.config.ts` defines two services and `bun run dev` boots both
+through `absolute workspace dev` (a TUI workspace orchestrator):
+
+```ts
+defineConfig({
+  db: {
+    kind: 'command',
+    command: ['docker', 'compose', '-f', 'db/docker-compose.db.yml', 'up', 'db'],
+    ready: { type: 'tcp', host: '127.0.0.1', port: 5433 },
+    shutdown: { command: [/* … */ 'down'] },
+    port: 5433,
+    visibility: 'internal'
+  },
+  app: {
+    kind: 'absolute',
+    entry: 'src/backend/server.ts',
+    dependsOn: ['db'],
+    /* … usual AbsoluteJS build config … */
+  }
+});
+```
+
+`db` blocks until the TCP probe on `5433` succeeds; `app` then starts
+because of `dependsOn: ['db']`. On Ctrl+C the workspace runs the
+`shutdown.command` for the DB, so the container always tears down with
+the dev server.
 
 ## Scripts
 
 | Command               | What it does                                                                |
 | --------------------- | --------------------------------------------------------------------------- |
-| `bun run dev`         | Start AbsoluteJS dev server with HMR on http://localhost:3000               |
-| `bun run typecheck`   | `tsc --noEmit` against the whole project                                    |
+| `bun run dev`         | Start the workspace (DB + app) on http://localhost:3000                     |
+| `bun run typecheck`   | `tsc --noEmit` across the whole project                                     |
 | `bun run lint`        | ESLint via the AbsoluteJS plugin                                            |
 | `bun run format`      | Prettier across `.js / .ts / .css / .json / .mjs / .md / .vue`              |
-| `bun run db:up`       | `docker compose up` Postgres                                                |
-| `bun run db:down`     | Stop the container                                                          |
-| `bun run db:reset`    | Stop **and** wipe the volume (destructive)                                  |
-| `bun run db:postgresql` | Open a `psql` shell inside the container (auto starts/stops the DB)       |
-| `bun run db:studio`   | Open Drizzle Studio                                                         |
-| `bun run db:push`     | Drizzle migration push — currently hangs on Bun/macOS, see Quick start      |
+| `bun run db:generate` | Emit `db/migrations/*.sql` from `db/schema.ts` (`drizzle-kit generate`)     |
+| `bun run db:reset`    | Stop the container **and wipe the data volume** (destructive)               |
+| `bun run db:psql`     | Open a `psql` shell inside the running DB container                         |
+| `bun run db:studio`   | Open Drizzle Studio against the running container                           |
 
 ## Project layout
 
 ```
 absolute-flow/
-├── absolute.config.ts           AbsoluteJS build config (Vue, Tailwind v4)
+├── absolute.config.ts           Workspace config: `db` + `app` services
 ├── drizzle.config.ts            Drizzle migration config (postgresql, pg driver)
 ├── db/
+│   ├── connection.ts            DB credentials + DATABASE_URL constant
 │   ├── docker-compose.db.yml    Postgres 15, port 5433
 │   ├── schema.ts                boards / columns / tasks (UUID PKs, FK cascades)
 │   └── migrations/              drizzle-kit generate output (gitignored .sql)
@@ -145,9 +187,10 @@ re-fetches state to recover.
   [`FOR_ALEX_ANGULAR_BUG.md`](./FOR_ALEX_ANGULAR_BUG.md) for the full
   diagnosis and a one-line proposed fix in framework source.
 
-- **`bun run db:push` hangs silently on Bun + macOS** with both `pg` and
-  `postgres` drivers, regardless of `strict` mode. Workaround used in
-  [Quick start](#quick-start): `drizzle-kit generate` + `psql`.
+- **`drizzle-kit push` hangs silently on Bun + macOS** with both `pg`
+  and `postgres` drivers, regardless of `strict` mode. We don't ship a
+  `db:push` script for that reason — use `bun run db:generate` and pipe
+  the SQL into the running container, as in [Quick start](#quick-start).
 
 - **Docker port 5433.** The `db/docker-compose.db.yml` binds **5433** on
   the host (mapped to 5432 in the container) to dodge a host-bound
