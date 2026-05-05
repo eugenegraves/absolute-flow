@@ -16,11 +16,11 @@ defineProps<{
 				href="/"
 				class="flex items-center gap-2 text-lg font-semibold tracking-tight"
 			>
-				<span
-					class="relative inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-flow-500 via-glow-500 to-mint-500 shadow-glow"
-				>
-					<span class="text-sm font-black text-ink-950">A</span>
-				</span>
+				<img
+					src="/assets/png/absolutejs-temp.png"
+					alt="AbsoluteJS"
+					class="h-7 w-7 object-contain drop-shadow-[0_0_18px_rgba(95,163,255,0.35)]"
+				/>
 				<span class="text-gradient">AbsoluteFlow</span>
 			</a>
 			<nav class="flex items-center gap-7 text-sm text-ink-300">
@@ -202,8 +202,8 @@ defineProps<{
 								Built on a stack that gets out of the way.
 							</h2>
 							<p class="mt-4 text-base leading-relaxed text-ink-300">
-								Bun for the runtime, Elysia for the routes, AbsoluteJS for the
-								island choreography, Vue 3 for the surface, Drizzle on top of
+								Bun for the runtime, Elysia for the routes, AbsoluteJS for
+								the SSR pipeline, Vue 3 for the surface, Drizzle on top of
 								Postgres for the durable state.
 							</p>
 						</div>
@@ -221,7 +221,7 @@ defineProps<{
 		<footer
 			class="border-t border-white/5 py-8 text-center text-sm text-ink-500"
 		>
-			AbsoluteFlow · a flagship demo for AbsoluteJS Island Architecture
+			AbsoluteFlow · a flagship demo for AbsoluteJS + Vue 3
 		</footer>
 
 		<PerfBadge

@@ -27,7 +27,6 @@ export const usePerfBadge = (options: PerfBadgeOptions) => {
 	const hydrationMs = ref<number | null>(null);
 	const ready = ref(false);
 	const mode = ref<'dev' | 'prod'>('prod');
-	const islandCount = ref(0);
 
 	onMounted(async () => {
 		hydrationMs.value = Math.round(performance.now());
@@ -35,19 +34,6 @@ export const usePerfBadge = (options: PerfBadgeOptions) => {
 			typeof window !== 'undefined' && Boolean(window.__HMR_FRAMEWORK__)
 				? 'dev'
 				: 'prod';
-
-		try {
-			const claimed = (
-				window as unknown as {
-					__ABS_CLAIMED_ISLAND_MARKUP__?: Map<string, number>;
-				}
-			).__ABS_CLAIMED_ISLAND_MARKUP__;
-			if (claimed && typeof claimed.size === 'number') {
-				islandCount.value = claimed.size;
-			}
-		} catch {
-			islandCount.value = 0;
-		}
 
 		ready.value = true;
 
@@ -87,7 +73,6 @@ export const usePerfBadge = (options: PerfBadgeOptions) => {
 		hydrationMs,
 		ready,
 		mode,
-		islandCount,
 		frameworkVersion: options.frameworkVersion
 	};
 };

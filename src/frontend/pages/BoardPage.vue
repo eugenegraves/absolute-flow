@@ -19,11 +19,11 @@ const props = defineProps<{
 					href="/"
 					class="flex items-center gap-2 text-sm font-semibold tracking-tight text-ink-200 transition hover:text-ink-50"
 				>
-					<span
-						class="relative inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-flow-500 via-glow-500 to-mint-500"
-					>
-						<span class="text-sm font-black text-ink-950">A</span>
-					</span>
+					<img
+						src="/assets/png/absolutejs-temp.png"
+						alt="AbsoluteJS"
+						class="h-7 w-7 object-contain"
+					/>
 					AbsoluteFlow
 				</a>
 				<span class="text-ink-500">/</span>

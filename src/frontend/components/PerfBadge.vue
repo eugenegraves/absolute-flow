@@ -14,7 +14,7 @@ const props = defineProps<{
 
 const expanded = ref(true);
 
-const { vitals, hydrationMs, ready, mode, islandCount } = usePerfBadge({
+const { vitals, hydrationMs, ready, mode } = usePerfBadge({
 	frameworkVersion: props.frameworkVersion
 });
 
@@ -61,12 +61,12 @@ const formatHydration = (ms: number | null): string => {
 		class="glass-strong fixed right-4 bottom-4 z-40 w-[320px] max-w-[calc(100vw-2rem)] rounded-2xl shadow-card text-xs"
 	>
 		<div class="flex items-center gap-2 px-3 py-2.5">
-			<span
-				class="relative inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-flow-500 via-glow-500 to-mint-500 text-ink-950 font-black"
+			<img
+				src="/assets/png/absolutejs-temp.png"
+				alt=""
 				aria-hidden="true"
-			>
-				A
-			</span>
+				class="h-7 w-7 shrink-0 object-contain"
+			/>
 			<div class="flex min-w-0 flex-1 flex-col">
 				<div class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-300">
 					<span>AbsoluteJS</span>
@@ -141,10 +141,6 @@ const formatHydration = (ms: number | null): string => {
 						<span class="inline-flex items-center gap-1 text-mint-400">
 							<span class="inline-block h-1.5 w-1.5 rounded-full bg-mint-400" />
 							SSR
-						</span>
-						<span class="text-ink-500" v-if="islandCount">
-							· {{ islandCount }}
-							{{ islandCount === 1 ? 'island' : 'islands' }}
 						</span>
 					</div>
 					<div class="flex items-center gap-1 text-ink-400">
