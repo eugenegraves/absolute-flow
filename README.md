@@ -179,14 +179,6 @@ re-fetches state to recover.
 
 ## Caveats
 
-- **`@angular/compiler` is in devDependencies despite this being a
-  Vue-only project.** AbsoluteJS `0.19.0-beta.872` has a static
-  `import * as o from "@angular/compiler"` in its bundled dev runtime
-  (`dist/index.js:17747`). The module fails to load without that package
-  installed, even when no Angular code path will ever run. See
-  [`FOR_ALEX_ANGULAR_BUG.md`](./FOR_ALEX_ANGULAR_BUG.md) for the full
-  diagnosis and a one-line proposed fix in framework source.
-
 - **`drizzle-kit push` hangs silently on Bun + macOS** with both `pg`
   and `postgres` drivers, regardless of `strict` mode. We don't ship a
   `db:push` script for that reason — use `bun run db:generate` and pipe
