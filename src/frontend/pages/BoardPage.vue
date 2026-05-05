@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import KanbanBoard from '../components/KanbanBoard.vue';
+import PerfBadge from '../components/PerfBadge.vue';
 import type { BoardWithChildren } from '../../backend/handlers/boards';
 
 const props = defineProps<{
 	board: BoardWithChildren;
+	frameworkVersion: string;
 }>();
 </script>
 
@@ -42,5 +44,10 @@ const props = defineProps<{
 		<main class="flex flex-1 flex-col px-4 pt-6 pb-10 md:px-8">
 			<KanbanBoard :board="props.board" />
 		</main>
+
+		<PerfBadge
+			page-name="BoardPage"
+			:framework-version="props.frameworkVersion"
+		/>
 	</div>
 </template>

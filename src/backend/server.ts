@@ -24,6 +24,18 @@ import { Elysia, t } from 'elysia';
 const { absolutejs, manifest } = await prepare();
 const demoBoardId = await getOrCreateDemoBoard(db);
 
+const readFrameworkVersion = async (): Promise<string> => {
+	try {
+		const pkg = await Bun.file(
+			require.resolve('@absolutejs/absolute/package.json')
+		).json();
+		return typeof pkg.version === 'string' ? pkg.version : 'unknown';
+	} catch {
+		return 'unknown';
+	}
+};
+const frameworkVersion = await readFrameworkVersion();
+
 const optionalAsset = (key: string): string | null => {
 	try {
 		return asset(manifest, key);
@@ -54,7 +66,7 @@ const server = new Elysia()
 			}),
 			indexPath: asset(manifest, 'LandingPageIndex'),
 			pagePath: asset(manifest, 'LandingPage'),
-			props: { demoBoardId }
+			props: { demoBoardId, frameworkVersion }
 		})
 	)
 	.get(
@@ -76,7 +88,7 @@ const server = new Elysia()
 				}),
 				indexPath: asset(manifest, 'BoardPageIndex'),
 				pagePath: asset(manifest, 'BoardPage'),
-				props: { board }
+				props: { board, frameworkVersion }
 			});
 		},
 		{ params: t.Object({ id: t.String() }) }

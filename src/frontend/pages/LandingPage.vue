@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import PerfBadge from '../components/PerfBadge.vue';
+
 defineProps<{
 	demoBoardId: string;
+	frameworkVersion: string;
 }>();
 </script>
 
@@ -220,5 +223,10 @@ defineProps<{
 		>
 			AbsoluteFlow · a flagship demo for AbsoluteJS Island Architecture
 		</footer>
+
+		<PerfBadge
+			page-name="LandingPage"
+			:framework-version="$props.frameworkVersion"
+		/>
 	</div>
 </template>
