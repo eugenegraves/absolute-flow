@@ -1,0 +1,20 @@
+{
+	"configHash": "6c8mxcj4rr0o",
+	"files": {
+		"absolute.config.ts": "24g50nrtizrqk",
+		"src/constants.ts": "2ahxcn85urxxi",
+		"src/styles/colors.ts": "es9k21q6ja39",
+		"src/backend/server.ts": "fx9qlz32uv9v",
+		"src/backend/handlers/countHistoryHandlers.ts": "16xw55b22oa42",
+		"src/frontend/utils/edenTreaty.ts": "282wnhnsr9yq8",
+		"src/frontend/composables/useCount.ts": "6tl0al2lubjc",
+		"src/types/vue-shim.d.ts": "4jnsqnmda8o5",
+		"eslint.config.mjs": "2scvoz80izi30",
+		"package.json": "30r3xv2tftnkv",
+		"tsconfig.json": "1e4h7800ce4jx",
+		"src/frontend/pages/VueExample.vue": "kuy4gcukv8tp",
+		"src/frontend/components/CountButton.vue": "308nclk2qlfkg",
+		"src/styles/reset.css": "33d0qgrev3j92",
+		"src/styles/indexes/vue-example.css": "2vqijpd1m3722"
+	}
+}
