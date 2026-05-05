@@ -88,5 +88,6 @@
 		"target": "ESNext",
 		"tsBuildInfoFile": ".absolutejs/tsconfig.tsbuildinfo"
 		/* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */ /* Skip type checking all .d.ts files. */
-	}
+	},
+	"exclude": ["node_modules", "build", ".absolutejs", "dist"]
 }
